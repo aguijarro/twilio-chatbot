@@ -19,7 +19,7 @@ def whatsapp_webhook(request):
     """
 
     country = request.values.get('Body', "").lower()
-    resp = requests.get(f'https://restcountries.eu/rest/v2/name/{country}?fullText=true')
+    resp = requests.get(f'https://restcountries.com/v3.1/name/{country}?fullText=true')
     twilio_response = MessagingResponse()
     msg = twilio_response.message()
     if not (200 <= resp.status_code <= 299):
@@ -31,13 +31,10 @@ def whatsapp_webhook(request):
         )
     else:
         data = resp.json()[0]
-        native_name = data['nativeName']
-        capital = data['capital']
-        people = data['demonym']
-        region = data['region']
+        common_name = data['name']['common']
+        official_name = data['name']['official']
+
         msg.body(
-            f"{country.title()} is a country in {region}. "
-            f"It's capital city is {capital}, while it's native name is {native_name}. "
-            f"A person from {country.title()} is called a {people}."
+            f"{common_name} is a country which official name is {official_name}."
         )
     return str(twilio_response)
